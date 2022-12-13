@@ -16,23 +16,18 @@ Instructed by Professor I-Chen Wu
 #include "agent.h"
 #include "episode.h"
 #include "statistic.h"
-#include "train.h"
 
 void man_help() {
-	std::cout << "Usege: ./surakarta [OPTION]...\n\n";
-	std::cout << "A Surakarta Game Engine implementing different strategy, ex: Greedy, MCTS, AlphaGo(only value function), enjoy it!\n\n";
+	std::cout << "Usage: ./surakarta [OPTION]...\n\n";
+	std::cout << "A Surakarta Game Engine implementing different strategy, ex: Greedy, MCTS, AlphaGo(disabled), enjoy it!\n\n";
 	
 	std::cout << "[OPTION]...\n";
 	std::cout << std::left << std::setw(30);
 	std::cout << "  --total=NUM_OF_GAME" << "Set total numbers of games to run. Default value: 5\n\n";
 	std::cout << std::left << std::setw(30);
-	std::cout << "  --load=PATH_TO_FILE " << "Enter file name (path) to load model (Network parameters)\n" <<  std::setw(30) << " " << "for training and playing\n\n";
+	std::cout << "  --mode=MODE" << "Two Modes: \"train\" for training (disabled),  \"eval\" for evaluation.\n" << std::setw(30) << " " << "Default value: \"eval\"\n\n";
 	std::cout << std::left << std::setw(30);
-	std::cout << "  --save=PATH_TO_FILE " << "Enter file name (path) to save Network parameters\n" << std::setw(30) << " " << "after training.\n\n";
-	std::cout << std::left << std::setw(30);
-	std::cout << "  --mode=MODE" << "Two Modes: \"train\" for training,  \"eval\" for evaluation.\n" << std::setw(30) << " " << "Default value: \"train\"\n\n";
-	std::cout << std::left << std::setw(30);
-	std::cout << "  --black=POLICY" << "Three POLICYS: \"Greedy\", \"MCTS\", \"CNN\", \"Manual\" to choose.\n";
+	std::cout << "  --black=POLICY" << "Three POLICYS: \"Greedy\", \"MCTS\", \"LeafParallelMCTS\", \"RootParallelMCTS\", \"TreeParallelMCTS\", \"Manual\" to choose.\n";
 	std::cout << std::left << std::setw(30);
 	std::cout << "  --white=POLICY" << "\n\n";
 }
@@ -45,11 +40,9 @@ int main(int argc, char* argv[]) {
 	size_t total = 5, block = 0;
 	std::string load_module;
 	std::string save_module;
-	std::string mode = "train";
-	std::string black_policy = "CNN";
-	std::string white_policy = "Greedy";
-	const int train_epoch = 1;  
-	const int save_epoch = 250;
+	std::string mode = "eval";
+	std::string black_policy = "Greedy";
+	std::string white_policy = "MCTS";
 	
 	for (int i{1}; i < argc; i++) {
 		std::string para(argv[i]);
@@ -63,12 +56,6 @@ int main(int argc, char* argv[]) {
 		else if (para.find("--block=") == 0) {
 			block = std::stoull(para.substr(para.find("=") + 1));
 		}
-		else if (para.find("--load=") == 0) {
-			load_module = para.substr(para.find("=") + 1);
-		}
-		else if (para.find("--save=") == 0) {
-			save_module = para.substr(para.find("=") + 1);
-		}
 		else if (para.find("--mode=") == 0) {
 			mode = para.substr(para.find("=") + 1);
 		}
@@ -79,20 +66,6 @@ int main(int argc, char* argv[]) {
 			white_policy = para.substr(para.find("=") + 1);
 		}
 	}
-	if (!load_module.empty()){
-		torch::load(Net, load_module);
-	}
-	
-	if (torch::cuda::is_available()) {
-		std::cout << "Train on GPU\n";
-		device = torch::kCUDA;
-	}
-	else {
-		device = torch::kCPU;
-		std::cout << "Train on CPU\n";
-	}
-	Net->to(device);
-
 
 	statistic stat(total, block);
 
@@ -140,20 +113,6 @@ int main(int argc, char* argv[]) {
 			std::cout << win.name() << " Wins\n\n";	
 			train_set_game.train_close_episode( &win );
 			stat.close_episode("end", &win, b);
-		}
-		// train Network 
-		if ( (++cnt) % train_epoch  == 0 && mode=="train" ) {
-			std::cout << "Epoch : " << cnt << '\n';
-			train_Net(train_set_game); // episode, epochs
-			train_set_game.clear();
-		}
-
-		// save Network
-		if ( (cnt) % save_epoch == 0 && !save_module.empty()) {
-			std::cout << "Checkpoint in epoch " << cnt << '\n';
-			save_cnt++;
-			std::string module_name = save_module + std::to_string(save_cnt*save_epoch) + ".pt";
-			torch::save(Net, module_name);
 		}
 	}
 	return 0;

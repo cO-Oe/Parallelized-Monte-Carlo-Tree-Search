@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MonteCarlo.h"
+#include "MCTS.h"
 #include "policy.h"
 #include <functional>
 #include <iostream>
@@ -62,11 +62,17 @@ protected:
 		if (policy == "greedy" || policy == "Greedy") {
 			mv = Policy::Greedy(before, piece);
 		}
-		else if (policy == "CNN") {
-			mv = Policy::NN(before, piece, prev_board, mode);
-		}
 		else if (policy == "MCTS" || policy == "mcts") {
 			mv = Policy::MCTS(before, piece, 1000);
+		}
+		else if (policy == "LeafParallelMCTS") {
+			mv = Policy::leaf_parallel_MCTS(before, piece, 1000);
+		}
+		else if (policy == "RootParallelMCTS") {
+			mv = Policy::root_parallel_MCTS(before, piece, 1000);
+		}
+		else if (policy == "TreeParallelMCTS") {
+			mv = Policy::tree_parallel_MCTS(before, piece, 1000);
 		}
 		else if (policy == "Manual") {
 			mv = Policy::Manual(before, piece);
