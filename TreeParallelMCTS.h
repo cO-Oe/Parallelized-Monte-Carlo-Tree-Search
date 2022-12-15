@@ -7,7 +7,7 @@
 #include <time.h>
 #include <climits>
 
-class TreeParellelMCTS {
+class TreeParallelMCTS {
 public:
 	std::unique_ptr<TreeNode> root;
 	std::vector<TreeNode*> path;
@@ -18,7 +18,7 @@ public:
 
 	static constexpr double c_parameter = sqrt(2.0);
 
-	MonteCarloTree() : root(), path(), root_board(), eng(rd()) {}
+	TreeParallelMCTS() : root(), path(), root_board(), eng(rd()) {}
 	
 	TreeNode* UCB (TreeNode* n)  {
 

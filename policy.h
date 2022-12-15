@@ -1,7 +1,7 @@
 #include "MCTS.h"
-#include "LeafParellelMCTS.h"
-#include "RootParellelMCTS.h"
-#include "TreeParellelMCTS.h"
+#include "LeafParallelMCTS.h"
+#include "RootParallelMCTS.h"
+#include "TreeParallelMCTS.h"
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -79,7 +79,7 @@ public:
 	static Pair leaf_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times) {
 		if ( before.check_Piece_onBoard(piece)==FAIL ) return {};//lose
 		
-		MonteCarloTree tree;
+		LeafParallelMCTS tree;
 		tree.reset(before);
 		std::cout << "leaf_parallel_MCTS take action\n";
 		const int &simulationtime = simulation_times;
@@ -98,7 +98,7 @@ public:
 	static Pair root_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times) {
 		if ( before.check_Piece_onBoard(piece)==FAIL ) return {};//lose
 		
-		MonteCarloTree tree;
+		RootParallelMCTS tree;
 		tree.reset(before);
 		std::cout << "root_parallel_MCTS take action\n";
 		const int &simulationtime = simulation_times;
@@ -117,7 +117,7 @@ public:
 	static Pair tree_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times) {
 		if ( before.check_Piece_onBoard(piece)==FAIL ) return {};//lose
 		
-		MonteCarloTree tree;
+		TreeParallelMCTS tree;
 		tree.reset(before);
 		std::cout << "tree_parallel_MCTS take action\n";
 		const int &simulationtime = simulation_times;
