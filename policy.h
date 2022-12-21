@@ -1,11 +1,12 @@
 #include "MCTS.h"
-#include "LeafParallelMCTS.h"
+#include "OpenmpMCTS.h"
 #include "RootParallelMCTS.h"
 #include "TreeParallelMCTS.h"
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
 #include <iomanip>
+#include <omp.h>
 class episode;
 
 class Policy {
@@ -57,18 +58,28 @@ public:
 		return {x1, x2};
 	}
 
-	static Pair MCTS (board &before, const PIECE &piece, const int &simulation_times) {
+	static Pair MCTS (board &before, const PIECE &piece, const int &simulation_times, const double &timer) {
 		if ( before.check_Piece_onBoard(piece)==FAIL ) return {};//lose
 		
 		MonteCarloTree tree;
 		tree.reset(before);
 		std::cout << "MCTS take action\n";
+
+		// timer
+		double itime, ftime, exec_time = 0.0;
 		const int &simulationtime = simulation_times;
 		int count_sim = 0;
-		while (count_sim < simulationtime) {
+		itime = omp_get_wtime();
+
+
+		while (exec_time < timer) {
 			tree.tree_policy();
 			count_sim++;
+			ftime = omp_get_wtime();
+			exec_time = ftime - itime;
 		}
+		std::cout << "MCTS Execution time " << exec_time << " Timer " << timer << '\n';
+
 		
 		// tree.root->showchild();
 
@@ -76,58 +87,79 @@ public:
 		return best_move;
 	}
 
-	static Pair leaf_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times) {
+	static Pair openmp_MCTS (board &before, const PIECE &piece, const int &simulation_times, const double &timer) {
 		if ( before.check_Piece_onBoard(piece)==FAIL ) return {};//lose
 		
-		LeafParallelMCTS tree;
+		OpenmpMCTS tree;
 		tree.reset(before);
-		std::cout << "leaf_parallel_MCTS take action\n";
+		std::cout << "openmpMCTS take action\n";
+
+		// timer
+		double itime, ftime, exec_time = 0.0;
 		const int &simulationtime = simulation_times;
 		int count_sim = 0;
-		while (count_sim < simulationtime) {
+		itime = omp_get_wtime();
+
+
+		while (exec_time < timer) {
 			tree.tree_policy();
 			count_sim++;
+			ftime = omp_get_wtime();
+			exec_time = ftime - itime;
 		}
-		
+		std::cout << "openMP Execution time " << exec_time << " Timer " << timer << '\n';
 		// tree.root->showchild();
 
 		Pair best_move = tree.root->best_child();
 		return best_move;
 	}
 
-	static Pair root_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times) {
+	static Pair root_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times, const double &timer) {
 		if ( before.check_Piece_onBoard(piece)==FAIL ) return {};//lose
 		
 		RootParallelMCTS tree;
 		tree.reset(before);
 		std::cout << "root_parallel_MCTS take action\n";
+
+		// timer
+		double itime, ftime, exec_time = 0.0;
 		const int &simulationtime = simulation_times;
 		int count_sim = 0;
-		while (count_sim < simulationtime) {
+		itime = omp_get_wtime();
+
+
+		while (exec_time < timer) {
 			tree.tree_policy();
 			count_sim++;
+			ftime = omp_get_wtime();
+			exec_time = ftime - itime;
 		}
-		
 		// tree.root->showchild();
 
 		Pair best_move = tree.root->best_child();
 		return best_move;
 	}
 
-	static Pair tree_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times) {
+	static Pair tree_parallel_MCTS (board &before, const PIECE &piece, const int &simulation_times, const double &timer) {
 		if ( before.check_Piece_onBoard(piece)==FAIL ) return {};//lose
 		
 		TreeParallelMCTS tree;
 		tree.reset(before);
 		std::cout << "tree_parallel_MCTS take action\n";
+
+		// timer
+		double itime, ftime, exec_time = 0.0;
 		const int &simulationtime = simulation_times;
 		int count_sim = 0;
-		while (count_sim < simulationtime) {
+		itime = omp_get_wtime();
+
+
+		while (exec_time < timer) {
 			tree.tree_policy();
 			count_sim++;
+			ftime = omp_get_wtime();
+			exec_time = ftime - itime;
 		}
-		
-		// tree.root->showchild();
 
 		Pair best_move = tree.root->best_child();
 		return best_move;

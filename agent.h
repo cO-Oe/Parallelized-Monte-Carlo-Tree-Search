@@ -63,16 +63,16 @@ protected:
 			mv = Policy::Greedy(before, piece);
 		}
 		else if (policy == "MCTS" || policy == "mcts") {
-			mv = Policy::MCTS(before, piece, 1000);
+			mv = Policy::MCTS(before, piece, 1000, 0.3);
 		}
-		else if (policy == "LeafParallelMCTS") {
-			mv = Policy::leaf_parallel_MCTS(before, piece, 1000);
+		else if (policy == "OpenmpMCTS") {
+			mv = Policy::openmp_MCTS(before, piece, 1000, 0.3);
 		}
 		else if (policy == "RootParallelMCTS") {
-			mv = Policy::root_parallel_MCTS(before, piece, 1000);
+			mv = Policy::root_parallel_MCTS(before, piece, 1000, 0.3);
 		}
 		else if (policy == "TreeParallelMCTS") {
-			mv = Policy::tree_parallel_MCTS(before, piece, 1000);
+			mv = Policy::tree_parallel_MCTS(before, piece, 1000, 0.3);
 		}
 		else if (policy == "Manual") {
 			mv = Policy::Manual(before, piece);

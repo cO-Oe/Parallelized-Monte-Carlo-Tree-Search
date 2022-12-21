@@ -27,7 +27,7 @@ void man_help() {
 	std::cout << std::left << std::setw(30);
 	std::cout << "  --mode=MODE" << "Two Modes: \"train\" for training (disabled),  \"eval\" for evaluation.\n" << std::setw(30) << " " << "Default value: \"eval\"\n\n";
 	std::cout << std::left << std::setw(30);
-	std::cout << "  --black=POLICY" << "Three POLICYS: \"Greedy\", \"MCTS\", \"LeafParallelMCTS\", \"RootParallelMCTS\", \"TreeParallelMCTS\", \"Manual\" to choose.\n";
+	std::cout << "  --black=POLICY" << "Three POLICYS: \"Greedy\", \"MCTS\", \"OpenmpMCTS\", \"RootParallelMCTS\", \"TreeParallelMCTS\", \"Manual\" to choose.\n";
 	std::cout << std::left << std::setw(30);
 	std::cout << "  --white=POLICY" << "\n\n";
 }
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 	std::string load_module;
 	std::string save_module;
 	std::string mode = "eval";
-	std::string black_policy = "Greedy";
+	std::string black_policy = "OpenmpMCTS";
 	std::string white_policy = "MCTS";
 	
 	for (int i{1}; i < argc; i++) {

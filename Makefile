@@ -1,4 +1,4 @@
 all:surakarta.cpp
-	g++ -Wall -Ofast surakarta.cpp -o surakarta
+	g++ -Wall -fopenmp -Ofast surakarta.cpp -o surakarta
 clean:
 	rm surakarta

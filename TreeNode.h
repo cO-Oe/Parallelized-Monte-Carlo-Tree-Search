@@ -5,9 +5,9 @@
 #include <memory>
 #include <climits>
 class MonteCarloTree;
-class TreeParallelMCTS;
+class OpenmpMCTS;
 class RootParallelMCTS;
-class LeafParallelMCTS;
+class TreeParallelMCTS;
 
 class TreeNode {
 private:
@@ -22,9 +22,9 @@ private:
 
 public:		
 	friend class MonteCarloTree;
-	friend class TreeParallelMCTS;
+	friend class OpenmpMCTS;
 	friend class RootParallelMCTS;
-	friend class LeafParallelMCTS;
+	friend class TreeParallelMCTS;
 
 
 	TreeNode() : child(nullptr), c_size(0), count(0), win(0), means(0.5) {}

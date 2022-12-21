@@ -6,11 +6,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <climits>
+#include <omp.h>
 
-class LeafParallelMCTS {
+
+class OpenmpMCTS {
 public:
 	std::unique_ptr<TreeNode> root;
-	std::vector<TreeNode*> path;
 	board root_board;
 	
 	std::random_device rd;
@@ -18,7 +19,7 @@ public:
 
 	static constexpr double c_parameter = sqrt(2.0);
 
-	LeafParallelMCTS () : root(), path(), root_board(), eng(rd()) {}
+	OpenmpMCTS () : root(), root_board(), eng(rd()) {}
 	
 	TreeNode* UCB (TreeNode* n)  {
 
@@ -53,11 +54,10 @@ public:
 		return (n->child.get() + best_idx); 
 	}
 
-	void select(board &b) {
+	void select(board &b, std::vector<TreeNode*> &path) {
 
 		TreeNode* current { root.get() };
-	
-		path.clear();
+
 		path.push_back(current);
 
 		while (current->child != nullptr && current->c_size != 0) {
@@ -68,7 +68,7 @@ public:
 		}
 	}
 	
-	WIN_STATE simulate(board &b) {
+	WIN_STATE simulate(board b) {
 
 		std::size_t count_step = 0;
 		
@@ -101,7 +101,7 @@ public:
 		}
 	}
 	
-	void backpropogate(const WIN_STATE &result) {
+	void backpropogate(const WIN_STATE &result, std::vector<TreeNode*> &path) {
 		for (auto &node : path) {
 			node->addresult(result);
 		}
@@ -110,9 +110,10 @@ public:
 	void tree_policy() {
 		board b {root_board};
 		TreeNode *current;
+		std::vector<TreeNode*> path;
 		
-		select(b);
-		
+		select(b, path);
+
 		TreeNode &leaf_node = *(path.back());
 		
 		if (leaf_node.c_size==0 && leaf_node.count > 0){
@@ -127,15 +128,22 @@ public:
 			// no step can go
 			else {
 				const WIN_STATE result = ( (leaf_node.color==WHITE) ? WHITE_WIN : BLACK_WIN);
-				backpropogate(result);
+				backpropogate(result, path);
+				return;
 			}
 		}
-
-		const WIN_STATE result { simulate(b) };
 		
-		backpropogate(result);
+		// openMP initializations
+		int threads = 8;
+		omp_set_num_threads(threads);
+		# pragma omp parallel for
+		for ( int i = 0; i < threads; ++i ) {
+			WIN_STATE result = simulate(b);
+			# pragma omp critical
+			backpropogate(result, path);
+		}
 	}
-	
+			
 
 	void reset(board &b) {
 		root_board = b;
